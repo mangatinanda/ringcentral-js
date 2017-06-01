@@ -425,6 +425,63 @@ rcsdk.platform().delete('/account/~/extension/~', {...query}).then(function(...)
 
 If your `Promise` library supports global error handler it might be useful to log Requests and Responses there.
 
+## Binary downloads
+
+If you need to download a binary file from API (call recording, fax attachment), you can do it as follows:
+
+### On NodeJS
+
+```js
+var fs = require('fs');
+
+// read as buffer
+rcsdk.platform().get('/account/~/messages/foo/content').then(function(res) {
+    
+    return res.response().buffer(); // we are accessing Node Fetch's Response
+    
+}).then(function(buffer) {
+    
+    fs.writeFileSync('./octocat.png', buffer);
+    
+});
+
+// read as stream
+rcsdk.platform().get('/account/~/messages/foo/content').then(function(res) {
+    
+    res.response().body.pipe(fs.createWriteStream('./octocat.png')); // we are accessing Node Fetch's Response
+    
+});
+```
+
+See more here [https://github.com/bitinn/node-fetch#usage](https://github.com/bitinn/node-fetch#usage).
+
+### In browser
+ 
+```js
+rcsdk.platform().get('/account/~/messages/foo/content').then(function(res) {
+
+    return res.response().blob(); // or arrayBuffer(), we are accessing WhatWG Fetch's Response
+
+}).then(function(blob ){
+    
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(blob);
+    document.getElementById('container').appendChild(img);
+    
+});
+```
+
+See more here [https://developer.mozilla.org/en-US/docs/Web/API/Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+
+### Generic
+
+In any case you always can just add token to known URL of resource and download it using whatever library you want or
+use directly as `<img src="..."/>`:
+
+```js
+var url = rcsdk.platform().createUrl('/account/~/messages/foo/content', {addServer: true, addToken: true});
+```
+
 ## Rate Limiting
 
 Platform class emits `rateLimitError` if server returns `429` status. You may supply an option `handleRateLimit` and
