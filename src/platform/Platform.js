@@ -233,7 +233,7 @@ Platform.prototype.loginWindow = function(options) {
         if (!options.url) throw new Error('Missing mandatory URL parameter');
 
         options = options || {};
-        options.url = options.url || 400;
+        options.url = options.url;
         options.width = options.width || 400;
         options.height = options.height || 600;
         options.origin = options.origin || window.location.origin;
